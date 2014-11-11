@@ -4,15 +4,22 @@
 -define(ONE_TO_FIVE, lists:seq(1,5)).
 -define(NEGATIVE_LIST, lists:seq(-1,2)).
 -define(BIG_LIST, lists:seq(1,100)).
+-define(DOUBLE_BIG_LIST, lists:map(fun(El) -> El * 2 end, lists:seq(1,100))).
 
 pmap_empty_test() ->
     [] = pfuns:pmap(fun(El) -> El * 2 end, []).
 pmap_test() ->
     [2,4,6,8,10] = pfuns:pmap(fun(El) -> El * 2 end, ?ONE_TO_FIVE).
+pmap_order_test() ->
+    Cl = ?DOUBLE_BIG_LIST,
+    [Cl, Cl, Cl, Cl, Cl] = lists:map(
+                               fun(_X) -> pfuns:pmap(fun(El) -> El * 2 end, ?BIG_LIST) end,
+                               lists:seq(1,5)
+                           ).
 
 pfilter_empty_test() ->
     [] = pfuns:pfilter(fun(El) -> El > 2 end, []).
-pfiler_test() ->
+pfilter_test() ->
     [3,4,5] = pfuns:pfilter(fun(El) -> El > 2 end, ?ONE_TO_FIVE).
 
 pany_empty_test() ->

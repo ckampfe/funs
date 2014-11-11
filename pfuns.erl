@@ -37,17 +37,18 @@ pmap(Function, List) ->
     Parent = self(),
     Pids = lists:map(
              fun(El) ->
-                  spawn_link(fun() -> Parent ! {ok, catch(Function(El))} end)
+                  spawn_link(fun() -> Parent ! {ok, Function(El), self()} end)
              end,
              List
            ),
-    gather_pmap(length(Pids), []).
+    gather_pmap(Pids, []).
 
-gather_pmap(0, ResultsList) ->
+gather_pmap([], ResultsList) ->
     lists:reverse(ResultsList);
-gather_pmap(RemainingCount, ResultsList) ->
+gather_pmap(Pids, ResultsList) ->
+    Pid = hd(Pids),
     receive
-        {ok, Result} -> gather_pmap(RemainingCount - 1, [Result|ResultsList])
+        {ok, Result, Pid} -> gather_pmap(tl(Pids), [Result|ResultsList])
     end.
 
 
